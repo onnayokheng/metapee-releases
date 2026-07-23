@@ -360,7 +360,7 @@ cat <<EOF
       Chrome sudah jalan, Tampermonkey terpasang otomatis.
    2. Kalau Chrome minta: aktifkan toggle "Allow User Scripts" untuk
       Tampermonkey di chrome://extensions.
-   3. Buka http://127.0.0.1:$PORT/userscript.user.js
+   3. Buka http://127.0.0.1:$PORT/script.js
       -> Tampermonkey menawarkan Install -> klik Install.
    4. Login affiliate.shopee.co.id (sesi tersimpan permanen).
 
