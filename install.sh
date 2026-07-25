@@ -24,6 +24,7 @@
 # tracking.csv, profil Chrome (login Shopee), dan password VNC dipertahankan.
 #
 # Non-interaktif: tambah --telegram-token "123:ABC" --telegram-ids "111" --port 8737
+#                 (opsional --admin-ids "111" = boleh command admin di chat bot)
 # =============================================================================
 set -euo pipefail
 
@@ -47,6 +48,7 @@ PAT="${GH_PAT:-}"
 TG_TOKEN="${TELEGRAM_TOKEN:-}"
 PORT="${HTTP_PORT:-}"
 TG_IDS="${ALLOWED_TG_IDS:-}"
+ADMIN_IDS="${ADMIN_TG_IDS:-}"
 M_TOKEN="${META_TOKEN:-}"
 M_ACCOUNT="${META_AD_ACCOUNT:-}"
 M_PAGE="${META_PAGE_ID:-}"
@@ -55,6 +57,7 @@ while [[ $# -gt 0 ]]; do
     --pat)             PAT="$2"; shift 2 ;;
     --telegram-token)  TG_TOKEN="$2"; shift 2 ;;
     --telegram-ids)    TG_IDS="$2"; shift 2 ;;
+    --admin-ids)       ADMIN_IDS="$2"; shift 2 ;;
     --port)            PORT="$2"; shift 2 ;;
     --meta-token)      M_TOKEN="$2"; shift 2 ;;
     --meta-ad-account) M_ACCOUNT="$2"; shift 2 ;;
@@ -176,6 +179,12 @@ else
     done
   fi
   [[ -z "$TG_IDS" ]] && warn "ALLOWED_TG_IDS kosong = SIAPA PUN bisa pakai bot. Set nanti di .env kalau perlu."
+  if [[ -z "$ADMIN_IDS" && $have_tty -eq 1 ]]; then
+    echo "  (Admin bot = boleh ganti token/kredensial/port & restart server lewat chat," >/dev/tty
+    echo "   tanpa SSH. Isi id-mu sendiri saja. Enter = mati, bisa diaktifkan nanti" >/dev/tty
+    echo "   dengan: metapee admins <id>)" >/dev/tty
+    ADMIN_IDS=$(ask "ADMIN_TG_IDS (Enter = kosong/mati): ")
+  fi
   if [[ $have_tty -eq 1 ]]; then
     [[ -z "$M_ACCOUNT" ]] && M_ACCOUNT=$(ask  "META_AD_ACCOUNT (Enter = skip): ")
     [[ -z "$M_PAGE"    ]] && M_PAGE=$(ask     "META_PAGE_ID    (Enter = skip): ")
@@ -186,6 +195,7 @@ else
   {
     echo "TELEGRAM_TOKEN=$TG_TOKEN"
     echo "ALLOWED_TG_IDS=$TG_IDS"
+    echo "ADMIN_TG_IDS=$ADMIN_IDS"
     echo "HTTP_HOST=0.0.0.0"
     echo "HTTP_PORT=$PORT"
     [[ -n "$M_ACCOUNT" ]] && echo "META_AD_ACCOUNT=$M_ACCOUNT"
