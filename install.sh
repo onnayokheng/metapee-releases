@@ -329,6 +329,18 @@ if [[ ! -f "/home/$DESKTOP_USER/.vncpass" ]]; then
 fi
 VNC_PASS=$(cat /root/vnc-password.txt 2>/dev/null || echo "(lihat /root/vnc-password.txt)")
 
+# ---------- .env: NOVNC_URL/NOVNC_PASSWORD (dipakai watchdog alert Shopee) ----------
+# Ditulis SEBELUM service di-restart di bawah, biar daemon langsung baca
+# nilai barunya di start ini juga (bukan nunggu restart berikutnya).
+PUB_IP=$(curl -fsS4 --max-time 5 ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')
+for kv in "NOVNC_URL=http://$PUB_IP:$NOVNC_PORT/vnc.html" "NOVNC_PASSWORD=$VNC_PASS"; do
+  k="${kv%%=*}"
+  grep -vE "^$k=" "$APP_DIR/.env" > "$APP_DIR/.env.tmp" 2>/dev/null || true
+  echo "$kv" >> "$APP_DIR/.env.tmp"
+  mv "$APP_DIR/.env.tmp" "$APP_DIR/.env"
+done
+chmod 600 "$APP_DIR/.env"
+
 # ---------- firewall ----------
 if command -v ufw >/dev/null && ufw status 2>/dev/null | grep -q "Status: active"; then
   ufw allow "$PORT/tcp"  >/dev/null || true
@@ -352,7 +364,7 @@ for u in vf-xvfb vf-openbox vf-chrome vf-x11vnc vf-novnc; do
 done
 
 # ---------- ringkasan ----------
-PUB_IP=$(curl -fsS4 --max-time 5 ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')
+# PUB_IP udah dihitung di atas (blok .env NOVNC_URL), reuse variabelnya.
 cat <<EOF
 
 ============================================================
@@ -370,8 +382,10 @@ cat <<EOF
       Chrome sudah jalan, Tampermonkey terpasang otomatis.
    2. Kalau Chrome minta: aktifkan toggle "Allow User Scripts" untuk
       Tampermonkey di chrome://extensions.
-   3. Buka http://127.0.0.1:$PORT/script.js
-      -> Tampermonkey menawarkan Install -> klik Install.
+   3. Pasang DUA userscript — buka satu per satu, tiap URL bikin
+      Tampermonkey menawarkan Install -> klik Install:
+        http://127.0.0.1:$PORT/script.js    (generate link affiliate)
+        http://127.0.0.1:$PORT/export.js    (export laporan konversi & klik)
    4. Login affiliate.shopee.co.id (sesi tersimpan permanen).
 
   Kalau daemon masih jalan di laptop: MATIKAN (2 poller Telegram
