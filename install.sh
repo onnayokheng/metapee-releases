@@ -153,9 +153,10 @@ else
   info "Versi terpasang: $(cat "$APP_DIR/VERSION" 2>/dev/null || echo '?')"
 fi
 
-# ---------- venv + Pillow ----------
+# ---------- venv + deps (pinned, lihat requirements.txt) ----------
 [[ -x "$APP_DIR/.venv/bin/python3" ]] || python3 -m venv "$APP_DIR/.venv"
-"$APP_DIR/.venv/bin/pip" install -q --upgrade pip pillow
+"$APP_DIR/.venv/bin/pip" install -q --upgrade pip
+"$APP_DIR/.venv/bin/pip" install -q -r "$APP_DIR/requirements.txt"
 
 # ---------- .env (hanya first run — tidak pernah ditimpa) ----------
 if [[ -f "$APP_DIR/.env" ]]; then
