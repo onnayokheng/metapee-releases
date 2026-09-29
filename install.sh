@@ -199,7 +199,6 @@ else
     echo "ADMIN_TG_IDS=$ADMIN_IDS"
     echo "HTTP_HOST=0.0.0.0"
     echo "HTTP_PORT=$PORT"
-    echo "DASHBOARD_TOKEN=$(openssl rand -hex 32 2>/dev/null || python3 -c 'import secrets;print(secrets.token_hex(32))')"
     [[ -n "$M_ACCOUNT" ]] && echo "META_AD_ACCOUNT=$M_ACCOUNT"
     [[ -n "$M_PAGE"    ]] && echo "META_PAGE_ID=$M_PAGE"
     [[ -n "$M_TOKEN"   ]] && echo "META_TOKEN=$M_TOKEN"
